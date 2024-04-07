@@ -28,7 +28,7 @@ DATABASE_URL="mysql://gtodolist:gtodolist@127.0.0.1:3306/gtodolist?serverVersion
 Lancer la commande 
 `bin/console doctrine:migrations:migrate`  afin de créer les tables dans la base de donnée.
 
-## Création des clés SSL
+## Création des clés SSL pour le token JWT
 
 Lancer la commende 
 `bin/console lexik:jwt:generate-keypair` afin de créer une paire de clés SSL nécésaire à l'utilisation du JWToken afin d'avoir une connexion à l'API sécurisée.
