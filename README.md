@@ -1,5 +1,7 @@
 # G Todo List Back API
 
+<kbd>![](./readme/gtodoAPI.png)</kbd>
+
 ## Instalation des dépendences
 À la racine du projet lancer la commande:
 ### `composer install` 
