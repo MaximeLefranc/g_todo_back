@@ -10,10 +10,14 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
+use Doctrine\ORM\Events;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[AsEntityListener(event: Events::postUpdate, method: 'postUpdate', entity: Todo::class)]
 #[ORM\Entity(repositoryClass: TodoRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
         new Get(),
@@ -21,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Put(),
         new Post()
     ],
+    denormalizationContext: ['groups' => ['todo:create', 'todo:update']],
 )]
 class Todo
 {
@@ -31,17 +36,17 @@ class Todo
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'todo:create', 'todo:update'])]
     #[Assert\NotBlank]
     private ?string $content = null;
 
     #[ORM\Column]
-    #[Groups(['user:read'])]
-    #[Assert\NotBlank]
+    #[Groups(['user:read', 'todo:create', 'todo:update'])]
+    #[Assert\NotNull]
     private ?bool $isDone = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'todo:update'])]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -50,7 +55,19 @@ class Todo
     #[ORM\ManyToOne(inversedBy: 'todos')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotBlank]
+    #[Groups(['todo:create', 'todo:update'])]
     private ?user $author = null;
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTime();
+    }
+
+    public function postUpdate(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
 
     public function getId(): ?int
